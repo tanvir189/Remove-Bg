@@ -1,0 +1,5 @@
+{
+  "name": "Background Remover",
+  "description": "Remove image backgrounds instantly using the remove.bg API. Mobile-optimized web application.",
+  "requestFramePermissions": []
+}
