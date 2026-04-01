@@ -53,6 +53,13 @@ export default function App() {
         body: formData,
       });
 
+      const contentType = apiResponse.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await apiResponse.text();
+        console.error("Unexpected response from server:", text);
+        throw new Error("Server returned an invalid response. Please check if the backend is running.");
+      }
+
       const data = await apiResponse.json();
 
       if (!apiResponse.ok) {

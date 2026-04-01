@@ -16,9 +16,9 @@ async function startServer() {
   const PORT = 3000;
 
   // Configure multer for file uploads
-  const uploadDir = "uploads/";
+  const uploadDir = path.join(process.cwd(), "uploads");
   if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir, { recursive: true });
   }
   const upload = multer({ dest: uploadDir });
 
@@ -53,9 +53,21 @@ async function startServer() {
       const base64Image = Buffer.from(response.data).toString("base64");
       res.json({ image: `data:image/png;base64,${base64Image}` });
     } catch (error: any) {
-      console.error("Error removing background:", error.response?.data?.toString() || error.message);
-      res.status(500).json({ error: "Failed to remove background" });
+      const errorMessage = error.response?.data?.toString() || error.message;
+      console.error("Error removing background:", errorMessage);
+      
+      // Ensure we always return JSON
+      res.status(error.response?.status || 500).json({ 
+        error: "Failed to remove background",
+        details: errorMessage 
+      });
     }
+  });
+
+  // Global error handler to prevent HTML error pages
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error("Global error:", err);
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
   });
 
   // Vite middleware for development
